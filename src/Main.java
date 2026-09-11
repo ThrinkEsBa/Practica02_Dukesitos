@@ -10,20 +10,20 @@ interface MainInterface{
     public String controlBD(BD base);
 
     /**
-     * Menú interactivo para controlar la base de datos.
-     * Preguntará qué base de datos quieres mostrar
-     * @param base La base de datos a usar
-     * @return El output del archivo a leer.
-     */
-    public String consultToBD(BD base);
-
-    /**
      * Menú interactivo para añadir datos a la base de datos.
      * Pondrá relaciones si es que las hay entre varios archivos
      * y verificará que los datos estén bien estructurados.
      * @param base La base de datos a usar
      */
-    public void addToBD(BD base);
+    public void createToBD(BD base);
+
+    /**
+     * Menú interactivo para controlar la base de datos.
+     * Preguntará qué base de datos quieres mostrar
+     * @param base La base de datos a usar
+     * @return El output del archivo a leer.
+     */
+    public String readFromBD(BD base);
 
 
     /**

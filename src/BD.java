@@ -12,18 +12,18 @@ interface BDInterface{
     public File createFile(String name);
 
     /**
-     * Consulta la base de datos escogida
-     * @param option El número de archivo a escoger
-     * @return El texto del archivo
-     */
-    public String consult( int option);
-
-    /**
      * Añade el dato al archivo indicado.
      * @param data El dato que se quiere escribir
      * @param option El archivo donde se quiere escribir
      */
-    public void add(String data, int option);
+    public void create(String data, int option);
+
+    /**
+     * Consulta la base de datos escogida
+     * @param option El número de archivo a escoger
+     * @return El texto del archivo
+     */
+    public String read( int option);
 
     /**
      * Modifica el dato escogido en la posición del id
