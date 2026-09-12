@@ -48,5 +48,22 @@ interface MainInterface{
 }
 
 public class Main implements MainInterface{
-    
+    public String controlBD(BD base){
+        return "";
+    }
+
+    public void createToBD(BD base){
+    }
+
+    public String readFromBD(BD base){
+        return "";
+    }
+
+    public String updateFromBD(BD base){
+        return "";
+    }
+
+    public String deleteFromBD(BD base) {
+        return "";
+    }
 }
