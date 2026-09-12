@@ -50,5 +50,22 @@ public class BD implements BDInterface{
     private String[] options;
     private String BDname;
 
+    public File createFile(String name){
+        return null;
+    }
+    
+    public void create(String data, int option){        
+    }
 
+    public String read(int option){
+        return "";
+    }
+
+    public String update(int id, String data, int option){
+        return "";
+    }
+
+    public String delete(int id, int option){
+        return "";
+    }
 }
