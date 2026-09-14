@@ -19,6 +19,9 @@ public class Main implements MainInterface {
 
     private static final Scanner scanner = new Scanner(System.in);
 
+    private Class[][] requierements ={{String.class,Integer.class},
+                                        {String.class,Integer.class},
+                                        {String.class,Integer.class}}; 
 
     @Override
     public String controlBD(BD base) { 
@@ -51,8 +54,10 @@ public class Main implements MainInterface {
                 case 1:
                     System.out.println("Dame el dato a añadir:");
                     data = VistaConsola.manejadorDeStrings(scanner);
-                    base.create(data, fileIndex);
-                    System.out.println("Dato añadido correctamente.");
+                    if(checkPresentation(data, requierements[fileIndex])){
+                        base.create(data, fileIndex);
+                        System.out.println("Dato añadido correctamente.");
+                    }
                     break;
                 case 2:
                     System.out.println("\n--- CONTENIDO DE LA BASE DE DATOS ---");
@@ -64,8 +69,9 @@ public class Main implements MainInterface {
                     upd = VistaConsola.manejadorDeEntradas(scanner);
                     System.out.println("¿Qué irá en su lugar?");
                     data = VistaConsola.manejadorDeStrings(scanner);
-                    base.update(upd, data, fileIndex);
-                    System.out.println("Dato actualizado correctamente.");
+                    if(checkPresentation(data, requierements[fileIndex])){
+                        base.update(upd, data, opción);
+                    }
                     break;
                 case 4:
                     System.out.println("¿Qué id quieres eliminar?");
@@ -80,19 +86,26 @@ public class Main implements MainInterface {
         }
     }
 
-    private boolean  checkPresentation(String data, int file){
+    private boolean  checkPresentation(String data,  Class[] tipos){
         if (data == null || data.trim().isEmpty()) return false;
         String[] partes = data.split(",");
-
-        switch (file) {
-            case 2:
+        if(partes.length != tipos.length) return false;
+        try {
+            for(int i = 0; i < partes.length; i++){
+                if (tipos[i] == Integer.class) {
+                    Integer.parseInt(partes[i]);
+                } 
+                else if (tipos[i] == Double.class) {
+                    Double.parseDouble(partes[i]);
+                }
                 
-                break;
-            default:
-                throw new AssertionError();
+            }
+        }
+        catch (Exception e){
+            return false;
         }
 
-        return false;
+        return true;
     }
 
 

@@ -157,7 +157,7 @@ public class BD implements BDInterface {
 
                 if (currentId == id) {
                     oldData = line;
-                    contenidoNuevo.append(data).append(System.lineSeparator());
+                    contenidoNuevo.append(parts[0]).append(",").append(data).append(System.lineSeparator());
                 } else {
                     contenidoNuevo.append(line).append(System.lineSeparator());
                 }
@@ -166,7 +166,8 @@ public class BD implements BDInterface {
             throw new RuntimeException("Error al actualizar en " + file.getName(), e);
         }
 
-    
+        if(oldData == null) System.out.println("Dato no encontrado. Nada actualizado");
+        else System.out.println("Dato actualizado correctamente.");
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, false))) {
             bw.write(contenidoNuevo.toString());
         } catch (IOException e) {
