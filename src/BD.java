@@ -1,7 +1,11 @@
-
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
-interface BDInterface{
+interface BDInterface {
 
     /**
      * Crea el archivo si es que no existe. Si existe
@@ -17,21 +21,7 @@ interface BDInterface{
      * @param option El archivo donde se quiere escribir
      */
     public void create(String data, int option);
-
-    /**
-     * Consulta la base de datos escogida
-     * @param option El número de archivo a escoger
-     * @return El texto del archivo
-     */
-    public String read( int option);
-
-    /**
-     * Modifica el dato escogido en la posición del id
-     * @param id El id del dato a modificar
-     * @param data El string con el cual se reemplazará el dato
-     * @param option El archivo a escoger
-     * @return El antiguo dato.
-     */
+    public String read(int option);
     public String update(int id, String data, int option);
 
     /**
@@ -41,31 +31,156 @@ interface BDInterface{
      * @return El dato removido
      */
     public String delete(int id, int option);
-
-
 }
 
+public class BD implements BDInterface {
+    private final String[] options = {"clientes.csv", "sucursales.csv", "premios.csv"};
+    private final String BDname = "data";
 
-public class BD implements BDInterface{
-    private String[] options;
-    private String BDname;
+    public BD() {
+        File dir = new File(BDname);
+        if (!dir.exists()) dir.mkdirs();
 
-    public File createFile(String name){
-        return null;
-    }
     
-    public void create(String data, int option){        
+        for (String fileName : options) {
+            createFile(fileName);
+        }
     }
 
-    public String read(int option){
-        return "";
+    private File getFileByOption(int option) {
+        if (option < 0 || option > options.length) {
+            throw new IllegalArgumentException("Opción inválida. Debe ser 0..2");
+        }
+        return new File(BDname, options[option]);
     }
 
-    public String update(int id, String data, int option){
-        return "";
+    @Override
+    public File createFile(String name) {
+        File file = new File(BDname, name);
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error al crear archivo: " + file.getPath(), e);
+        }
+        return file;
     }
 
-    public String delete(int id, int option){
-        return "";
+    @Override
+    public void create(String data, int option) {
+        File file = getFileByOption(option);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
+            bw.write(data);
+            bw.newLine();
+        } catch (IOException e) {
+            throw new RuntimeException("Error al crear registro en " + file.getName(), e);
+        }
+    }
+
+    @Override
+    public String read(int option) {
+        File file = getFileByOption(option);
+        StringBuilder sb = new StringBuilder();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+                sb.append(line).append(System.lineSeparator());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error al leer " + file.getName(), e);
+        }
+
+        return sb.toString().trim();
+    }
+
+    @Override
+    public String update(int id, String data, int option) {
+        File file = getFileByOption(option);
+        StringBuilder contenidoNuevo = new StringBuilder();
+        String oldData = null;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+
+                String[] parts = line.split(",");
+                if (parts.length == 0) continue;
+
+                int currentId;
+                try {
+                    currentId = Integer.parseInt(parts[0].trim());
+                } catch (NumberFormatException ex) {
+                
+                    contenidoNuevo.append(line).append(System.lineSeparator());
+                    continue;
+                }
+
+                if (currentId == id) {
+                    oldData = line;
+                    contenidoNuevo.append(data).append(System.lineSeparator());
+                } else {
+                    contenidoNuevo.append(line).append(System.lineSeparator());
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error al actualizar en " + file.getName(), e);
+        }
+
+    
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, false))) {
+            bw.write(contenidoNuevo.toString());
+        } catch (IOException e) {
+            throw new RuntimeException("Error al guardar actualización en " + file.getName(), e);
+        }
+
+        return oldData;
+    }
+
+    @Override
+    public String delete(int id, int option) {
+        File file = getFileByOption(option);
+        StringBuilder contenidoNuevo = new StringBuilder();
+        String deletedData = null;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+
+                String[] parts = line.split(",");
+                if (parts.length == 0) continue;
+
+                int currentId;
+                try {
+                    currentId = Integer.parseInt(parts[0].trim());
+                } catch (NumberFormatException ex) {
+                
+                    contenidoNuevo.append(line).append(System.lineSeparator());
+                    continue;
+                }
+
+                if (currentId == id) {
+                    deletedData = line;
+                } else {
+                    contenidoNuevo.append(line).append(System.lineSeparator());
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error al eliminar en " + file.getName(), e);
+        }
+
+    
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, false))) {
+            bw.write(contenidoNuevo.toString());
+        } catch (IOException e) {
+            throw new RuntimeException("Error al guardar eliminación en " + file.getName(), e);
+        }
+
+        return deletedData;
     }
 }
