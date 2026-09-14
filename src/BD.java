@@ -48,6 +48,7 @@ public class BD implements BDInterface {
         for (String fileName : options) {
             createFile(fileName);
         }
+        updateIds();
     }
 
 
@@ -104,7 +105,7 @@ public class BD implements BDInterface {
     public void create(String data, int option) {
         File file = getFileByOption(option);
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
-
+            ids[option]++;
             bw.write(""+ ids[option]+","+data);
             bw.newLine();
         } catch (IOException e) {
@@ -214,6 +215,8 @@ public class BD implements BDInterface {
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar eliminación en " + file.getName(), e);
         }
+
+        updateIds();
 
         return deletedData;
     }
