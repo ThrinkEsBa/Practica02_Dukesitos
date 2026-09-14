@@ -1,5 +1,6 @@
-
+package src;
 import java.util.Scanner;
+
 
 interface MainInterface {
 
@@ -12,88 +13,92 @@ interface MainInterface {
      */
     public String controlBD(BD base);
 
-    /**
-     * Menú interactivo para añadir datos a la base de datos. Pondrá relaciones
-     * si es que las hay entre varios archivos y verificará que los datos estén
-     * bien estructurados.
-     *
-     * @param base La base de datos a usar
-     */
-    public void createToBD(BD base);
-
-    /**
-     * Menú interactivo para controlar la base de datos. Preguntará qué base de
-     * datos quieres mostrar
-     *
-     * @param base La base de datos a usar
-     * @return El output del archivo a leer.
-     */
-    public String readFromBD(BD base);
-
-    /**
-     * Menú interactivo para modificar datos de la base de datos. Preguntará qué
-     * dato se quiere, y buscará que todos los datos de la relación estén
-     * modificados.
-     *
-     * @param base La base de datos a usar
-     * @return El dato antiguo
-     */
-    public String updateFromBD(BD base);
-
-    /**
-     * Menú interactivo para eliminar datos de la base de datos. Preguntará de
-     * qué archivo eliminar, y buscará que en sus relaciones se elimine también
-     * el dato.
-     *
-     * @param base La base de datos a usar
-     * @return
-     */
-    public String deleteFromBD(BD base);
-
 }
 
 public class Main implements MainInterface {
 
     private static final Scanner scanner = new Scanner(System.in);
 
+
     @Override
-    public String controlBD(BD base) {
-        VistaConsola.menúPrincipal();
-        int opción = VistaConsola.manejadorDeEntradas(scanner);
-        switch (opción) {
-            case 1:
-                VistaConsola.menúDeGestión();
-                break;
-            case 2, 3:
-                VistaConsola.menúDeGestión();
-                break;
-            case 4:
+    public String controlBD(BD base) { 
+        int opción;
+        int next;
+
+        while (true) {
+            VistaConsola.menúPrincipal();
+            opción = VistaConsola.manejadorDeEntradas(scanner);
+
+            
+            if (opción == 4) {
                 System.out.println("Saliendo del programa...");
+                return ""; 
+            }
+
+            if (opción < 1 || opción > 4) {
+                System.out.println("Seleccionar opción válida.");
+                continue; 
+            }
+
+            VistaConsola.menúDeGestión();
+            next = VistaConsola.manejadorDeEntradas(scanner);
+
+            int fileIndex = opción - 1; 
+            int upd = 0;
+            String data = "";
+
+            switch (next) {
+                case 1:
+                    System.out.println("Dame el dato a añadir:");
+                    data = VistaConsola.manejadorDeStrings(scanner);
+                    base.create(data, fileIndex);
+                    System.out.println("Dato añadido correctamente.");
+                    break;
+                case 2:
+                    System.out.println("\n--- CONTENIDO DE LA BASE DE DATOS ---");
+                    System.out.println(base.read(fileIndex)); 
+                    System.out.println("-------------------------------------\n");
+                    break;
+                case 3:
+                    System.out.println("¿Qué id quieres editar?");
+                    upd = VistaConsola.manejadorDeEntradas(scanner);
+                    System.out.println("¿Qué irá en su lugar?");
+                    data = VistaConsola.manejadorDeStrings(scanner);
+                    base.update(upd, data, fileIndex);
+                    System.out.println("Dato actualizado correctamente.");
+                    break;
+                case 4:
+                    System.out.println("¿Qué id quieres eliminar?");
+                    upd = VistaConsola.manejadorDeEntradas(scanner);
+                    base.delete(upd, fileIndex); 
+                    System.out.println("Dato eliminado correctamente.");
+                    break;
+                default:
+                    System.out.println("Opción de gestión no válida.");
+                    break;
+            }
+        }
+    }
+
+    private boolean  checkPresentation(String data, int file){
+        if (data == null || data.trim().isEmpty()) return false;
+        String[] partes = data.split(",");
+
+        switch (file) {
+            case 2:
+                
                 break;
             default:
-                System.out.println("Selecionar opción válida.");
-                break;
+                throw new AssertionError();
         }
-        return "";
+
+        return false;
     }
 
-    @Override
-    public void createToBD(BD base) {
-    }
 
-    @Override
-    public String readFromBD(BD base) {
-
-        return "";
-    }
-
-    @Override
-    public String updateFromBD(BD base) {
-        return "";
-    }
-
-    @Override
-    public String deleteFromBD(BD base) {
-        return "";
+    public static void main(String[] args) {
+        Main mn = new Main();
+        BD base = new BD();
+        mn.controlBD(base);
     }
 }

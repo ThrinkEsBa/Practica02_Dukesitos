@@ -1,3 +1,4 @@
+package src;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -37,6 +38,8 @@ public class BD implements BDInterface {
     private final String[] options = {"clientes.csv", "sucursales.csv", "premios.csv"};
     private final String BDname = "data";
 
+    private final int[] ids = {0,0,0};
+
     public BD() {
         File dir = new File(BDname);
         if (!dir.exists()) dir.mkdirs();
@@ -47,8 +50,38 @@ public class BD implements BDInterface {
         }
     }
 
+
+    private void updateIds() {
+        for (int i = 0; i < options.length; i++) {
+            File file = getFileByOption(i);
+            int maxId = 0; 
+
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if (line.trim().isEmpty()) continue;
+                    
+                    String[] parts = line.split(",");
+                    if (parts.length > 0) {
+                        try {
+                            int currentId = Integer.parseInt(parts[0].trim());
+                            if (currentId > maxId) {
+                                maxId = currentId;
+                            }
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Error al cargar IDs de " + file.getName(), e);
+            }
+            ids[i] = maxId;
+        }
+    }
+
+
     private File getFileByOption(int option) {
-        if (option < 0 || option > options.length) {
+        if (option < 0 || option >= options.length) {
             throw new IllegalArgumentException("Opción inválida. Debe ser 0..2");
         }
         return new File(BDname, options[option]);
@@ -71,7 +104,8 @@ public class BD implements BDInterface {
     public void create(String data, int option) {
         File file = getFileByOption(option);
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
-            bw.write(data);
+
+            bw.write(""+ ids[option]+","+data);
             bw.newLine();
         } catch (IOException e) {
             throw new RuntimeException("Error al crear registro en " + file.getName(), e);
