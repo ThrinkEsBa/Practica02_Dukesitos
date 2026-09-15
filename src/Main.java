@@ -1,69 +1,219 @@
+import java.util.Scanner;
 
-interface MainInterface{
-    /**
-     * Controlador central de la Base de Datos
-     * Imprimirá un menú interactivo para hacer el CRUD de la
-     * base de datos y hará que el usuario lo controle.
-     * @param base La base de datos a controlar
-     * @return Lo que vaya a regresar la base de datos.
-     */
-    public String controlBD(BD base);
+/**
+ * Controla el menú del prototipo de PuellaGame.
+ */
+public class Main {
 
-    /**
-     * Menú interactivo para añadir datos a la base de datos.
-     * Pondrá relaciones si es que las hay entre varios archivos
-     * y verificará que los datos estén bien estructurados.
-     * @param base La base de datos a usar
-     */
-    public void createToBD(BD base);
+    private static final Scanner scanner = new Scanner(System.in);
+    private static final String[] entidades = {"Clientes", "Sucursales", "Premios"};
 
     /**
-     * Menú interactivo para controlar la base de datos.
-     * Preguntará qué base de datos quieres mostrar
-     * @param base La base de datos a usar
-     * @return El output del archivo a leer.
+     * Muestra el menú principal hasta que el usuario decida salir.
+     *
+     * @param base objeto que maneja los archivos CSV
      */
-    public String readFromBD(BD base);
+    public void controlBD(BD base) {
+        while (true) {
+            VistaConsola.menuPrincipal();
+            int opcion = VistaConsola.leerEntero(scanner);
 
+            if (opcion == 4) {
+                return;
+            }
 
-    /**
-     * Menú interactivo para modificar datos de la base de datos.
-     * Preguntará qué dato se quiere, y buscará que todos
-     * los datos de la relación estén modificados.
-     * 
-     * @param base La base de datos a usar
-     * @return El dato antiguo
-     */
-    public String updateFromBD(BD base);
+            if (opcion < 1 || opcion > 3) {
+                System.out.println("Opción inválida.");
+                continue;
+            }
 
-    /**
-     * Menú interactivo para eliminar datos de la base de datos.
-     * Preguntará de qué archivo eliminar, y buscará que
-     * en sus relaciones se elimine también el dato.
-     * @param base La base de datos a usar
-     * @return
-     */
-    public String deleteFromBD(BD base);
-
-}
-
-public class Main implements MainInterface{
-    public String controlBD(BD base){
-        return "";
+            gestionarEntidad(base, opcion - 1);
+        }
     }
 
-    public void createToBD(BD base){
+    /** Muestra el CRUD de clientes, sucursales o premios. */
+    private void gestionarEntidad(BD base, int entidad) {
+        while (true) {
+            VistaConsola.menuGestion(entidades[entidad]);
+            int opcion = VistaConsola.leerEntero(scanner);
+
+            try {
+                switch (opcion) {
+                    case 1:
+                        agregar(base, entidad);
+                        break;
+                    case 2:
+                        consultarPorId(base, entidad);
+                        break;
+                    case 3:
+                        editar(base, entidad);
+                        break;
+                    case 4:
+                        eliminar(base, entidad);
+                        break;
+                    case 5:
+                        consultarTodos(base, entidad);
+                        break;
+                    case 6:
+                        return;
+                    default:
+                        System.out.println("Opción inválida.");
+                }
+            } catch (RuntimeException e) {
+                System.out.println("Ocurrió un error: " + e.getMessage());
+            }
+        }
     }
 
-    public String readFromBD(BD base){
-        return "";
+    /** Agrega un nuevo registro. */
+    private void agregar(BD base, int entidad) {
+        String datos = capturarDatos(entidad);
+        int id = base.create(datos, entidad);
+        System.out.println("Registro guardado. ID: " + id);
     }
 
-    public String updateFromBD(BD base){
-        return "";
+    /** Consulta un registro por su llave. */
+    private void consultarPorId(BD base, int entidad) {
+        int id = VistaConsola.leerEnteroMinimo(scanner, "ID a consultar: ", 1);
+        String registro = base.readById(id, entidad);
+
+        if (registro == null) {
+            System.out.println("No se encontró ese ID.");
+        } else {
+            System.out.println(base.getHeader(entidad));
+            System.out.println(registro);
+        }
     }
 
-    public String deleteFromBD(BD base) {
-        return "";
+    /** Edita un registro existente. */
+    private void editar(BD base, int entidad) {
+        int id = VistaConsola.leerEnteroMinimo(scanner, "ID a editar: ", 1);
+
+        if (base.readById(id, entidad) == null) {
+            System.out.println("No se encontró ese ID.");
+            return;
+        }
+
+        String datos = capturarDatos(entidad);
+        if (base.update(id, datos, entidad)) {
+            System.out.println("Registro actualizado.");
+        }
+    }
+
+    /** Elimina un registro existente. */
+    private void eliminar(BD base, int entidad) {
+        int id = VistaConsola.leerEnteroMinimo(scanner, "ID a eliminar: ", 1);
+
+        if (base.delete(id, entidad)) {
+            System.out.println("Registro eliminado.");
+        } else {
+            System.out.println("No se encontró ese ID.");
+        }
+    }
+
+    /** Muestra todos los registros de una entidad. */
+    private void consultarTodos(BD base, int entidad) {
+        String registros = base.read(entidad);
+
+        if (registros.isEmpty()) {
+            System.out.println("No hay registros.");
+        } else {
+            System.out.println(base.getHeader(entidad));
+            System.out.println(registros);
+        }
+    }
+
+    /** Captura los campos de la entidad seleccionada. */
+    private String capturarDatos(int entidad) {
+        switch (entidad) {
+            case 0:
+                return capturarCliente();
+            case 1:
+                return capturarSucursal();
+            case 2:
+                return capturarPremio();
+            default:
+                throw new IllegalArgumentException("Entidad inválida.");
+        }
+    }
+
+    /** Captura los datos de un cliente. */
+    private String capturarCliente() {
+        String nombre = VistaConsola.leerTexto(scanner, "Nombre: ");
+        String paterno = VistaConsola.leerTexto(scanner, "Apellido paterno: ");
+        String materno = VistaConsola.leerTexto(scanner, "Apellido materno: ");
+        String fecha = VistaConsola.leerFecha(scanner, "Fecha de nacimiento (AAAA-MM-DD): ");
+        String sexo = VistaConsola.leerOpcion(
+            scanner,
+            "Sexo:",
+            new String[] {"Masculino", "Femenino", "Indeterminado"}
+        );
+        String correos = VistaConsola.leerCorreos(
+            scanner, "Correo(s), separados por ';': "
+        );
+        String telefonos = VistaConsola.leerTelefonos(
+            scanner, "Teléfono(s), separados por ';': "
+        );
+        return String.join(",", nombre, paterno, materno, fecha, sexo, correos, telefonos);
+    }
+
+    /** Captura los datos de una sucursal. */
+    private String capturarSucursal() {
+        String nombre = VistaConsola.leerTexto(scanner, "Nombre: ");
+        String calle = VistaConsola.leerTexto(scanner, "Calle: ");
+        String interior = VistaConsola.leerNumeroDomicilio(
+            scanner, "Número interior (N/A si no aplica): ", true
+        );
+        String exterior = VistaConsola.leerNumeroDomicilio(
+            scanner, "Número exterior: ", false
+        );
+        String colonia = VistaConsola.leerTexto(scanner, "Colonia: ");
+        String estado = VistaConsola.leerTexto(scanner, "Estado: ");
+        String telefono = VistaConsola.leerTexto(scanner, "Teléfono: ");
+        String horario = VistaConsola.leerHorario(
+            scanner, "Horario de atención (HH:MM-HH:MM): "
+        );
+
+        return String.join(",", nombre, calle, interior, exterior, colonia, estado, telefono, horario);
+    }
+
+    /** Captura los datos de un premio. */
+    private String capturarPremio() {
+        String nombre = VistaConsola.leerTexto(scanner, "Nombre: ");
+        String rangoEdad = VistaConsola.leerOpcion(
+            scanner,
+            "Rango de edad:",
+            new String[] {"Infantil", "Juvenil", "Adulto"}
+        );
+        double valor = VistaConsola.leerDouble(scanner, "Valor comercial: ");
+        int puntos = VistaConsola.leerEnteroMinimo(
+            scanner, "Puntos necesarios (mínimo 20): ", 20
+        );
+        String categoria = categoriaPremio(puntos);
+
+        return nombre + "," + categoria + "," + rangoEdad + ","
+            + valor + "," + puntos;
+    }
+
+    /** Calcula la categoría del premio usando sus puntos. */
+    private String categoriaPremio(int puntos) {
+        if (puntos <= 1000) {
+            return "Bajo";
+        } else if (puntos <= 3999) {
+            return "Medio";
+        } else {
+            return "Grande";
+        }
+    }
+
+    /** Inicia el programa. */
+    public static void main(String[] args) {
+        try {
+            BD base = new BD();
+            Main programa = new Main();
+            programa.controlBD(base);
+        } catch (RuntimeException e) {
+            System.out.println("No se pudo iniciar el programa: " + e.getMessage());
+        }
     }
 }
