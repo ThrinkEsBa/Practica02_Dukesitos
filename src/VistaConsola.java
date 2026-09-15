@@ -164,6 +164,17 @@ public class VistaConsola {
         }
     }
 
+    /** Lee un teléfono de un solo valor; solo acepta dígitos (7 a 15). */
+    public static String leerTelefono(Scanner scanner, String mensaje) {
+        while (true) {
+            String telefono = leerTexto(scanner, mensaje).trim();
+            if (telefono.matches("\\d{7,15}")) {
+                return telefono;
+            }
+            System.out.println("Teléfono inválido. Debe contener solo números (7 a 15 dígitos).");
+        }
+    }
+
     /** Lee un número de domicilio; permite N/A cuando no aplica. */
     public static String leerNumeroDomicilio(Scanner scanner, String mensaje, boolean permiteNA) {
         while (true) {
@@ -187,15 +198,44 @@ public class VistaConsola {
      * Lee un horario con el formato HH:MM-HH:MM.
      * Solo se valida la forma del texto, no si las horas existen realmente.
      */
-    public static String leerHorario(Scanner scanner, String mensaje) {
-        while (true) {
-            String horario = leerTexto(scanner, mensaje);
+  public static String leerHorario(Scanner scanner, String mensaje) {
+    while (true) {
+        String horario = leerTexto(scanner, mensaje);
 
-            if (horario.matches("\\d{2}:\\d{2}-\\d{2}:\\d{2}")) {
-                return horario;
-            }
-
+        // Validación de forma básica
+        if (!horario.matches("\\d{2}:\\d{2}-\\d{2}:\\d{2}")) {
             System.out.println("Formato inválido. Usa HH:MM-HH:MM, por ejemplo 09:00-22:00.");
+            continue;
         }
+
+        String[] partes = horario.split("-");
+        String[] inicio = partes[0].split(":");
+        String[] fin = partes[1].split(":");
+
+        int hIni = Integer.parseInt(inicio[0]);
+        int mIni = Integer.parseInt(inicio[1]);
+        int hFin = Integer.parseInt(fin[0]);
+        int mFin = Integer.parseInt(fin[1]);
+
+        // Validar rango 24h real
+        boolean inicioValido = (hIni >= 0 && hIni <= 23) && (mIni >= 0 && mIni <= 59);
+        boolean finValido = (hFin >= 0 && hFin <= 23) && (mFin >= 0 && mFin <= 59);
+
+        if (!inicioValido || !finValido) {
+            System.out.println("Hora inválida. Usa rango 24h real: 00:00 a 23:59.");
+            continue;
+        }
+
+        // Comparar que inicio < fin
+        int minutosInicio = hIni * 60 + mIni;
+        int minutosFin = hFin * 60 + mFin;
+
+        if (minutosInicio >= minutosFin) {
+            System.out.println("Horario inválido. La hora inicial debe ser menor que la final.");
+            continue;
+        }
+
+        return horario;
     }
+}
 }

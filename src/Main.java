@@ -169,7 +169,7 @@ public class Main {
         );
         String colonia = VistaConsola.leerTexto(scanner, "Colonia: ");
         String estado = VistaConsola.leerTexto(scanner, "Estado: ");
-        String telefono = VistaConsola.leerTexto(scanner, "Teléfono: ");
+        String telefono = VistaConsola.leerTelefono(scanner, "Teléfono: ");
         String horario = VistaConsola.leerHorario(
             scanner, "Horario de atención (HH:MM-HH:MM): "
         );
