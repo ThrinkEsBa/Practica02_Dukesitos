@@ -1,0 +1,437 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{epsfig,graphicx} % Required for inserting images
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage[bookmarksopen]{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{array}
+\usepackage{listings} 
+\usepackage[left=2cm,right=2cm,top=1.8cm,bottom=2.3cm]{geometry}
+\usepackage{titlesec}
+\usepackage{fancyhdr} 
+\usepackage{lastpage}
+\usepackage{enumitem}
+\usepackage{multicol}           % Permits header customization. See header section below.
+\usepackage{wrapfig}
+\usepackage{nicematrix} 
+\usepackage[OT1]{fontenc}
+\usepackage{lmodern}
+\usepackage{color}
+\usepackage{amsfonts}
+\usepackage{epstopdf}
+\usepackage{tikz}
+
+\usepackage{upgreek}
+\usepackage{siunitx}
+
+\usepackage{longtable}
+\usepackage{float}
+\usepackage[spanish,mexico]{babel}
+\usepackage{microtype}
+\usepackage{csquotes}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{cleveref}
+\setlist{nosep}
+
+% \usepackage[style=ieee,backend=biber]{biblatex}
+% \addbibresource{refs.bib}
+
+\usetikzlibrary{automata, positioning}
+\pagestyle{fancy}
+\fancyhf{}
+\rfoot{\textit{Página \thepage \hspace{1pt} de \pageref{LastPage}}}
+
+
+%------ Paquetes matemáticos básicos --------%
+\usepackage{xcolor}
+\definecolor{navyheading}{HTML}{1A365D} % Azul Oscuro (Títulos principales)
+\definecolor{accentblue}{HTML}{0066CC}  % Azul de Acento (Líneas y destacados)
+\definecolor{mutedgray}{HTML}{5A6A85}   % Gris Medio (Metadatos)
+\definecolor{bodygray}{HTML}{2D3748}    % Gris Carbón (Texto principal para legibilidad)
+\usepackage{setspace}
+\onehalfspacing % Interlineado 1.5
+\setlength{\parindent}{2em} % Sangría clásica de párrafo
+\setlength{\parskip}{0pt}   % Sin espacio extra entre párrafos para mantener estructura
+\usepackage{titlesec}
+\titleformat{\section}
+  {\color{navyheading}\normalfont\large\bfseries\sffamily\uppercase}
+  {\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{14pt}{6pt}
+
+\titleformat{\subsection}
+  {\color{navyheading}\normalfont\normalsize\bfseries\sffamily}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+% ==========================================
+%  2. GEOMETRÍA DE PÁGINA (Márgenes de 1")
+% ==========================================
+
+% ==========================================
+%  3. PALETA DE COLORES PERSONALIZADA
+% ==========================================
+
+
+% Aplicar el color gris carbón al texto de forma global
+\makeatletter
+\newcommand{\globalcolor}[1]{%
+  \color{#1}\global\let\default@color\current@color
+}
+\makeatother
+\AtBeginDocument{\globalcolor{bodygray}}
+
+% ==========================================
+%  4. TIPOGRAFÍA ACADÉMICA
+% ==========================================
+\usepackage{times} % Tipografía Times (drop-in universal)
+\usepackage{microtype} % Optimiza el espaciado entre palabras
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=navyheading,
+    filecolor=navyheading,      
+    urlcolor=accentblue,
+    citecolor=navyheading,
+}
+\begin{document}
+
+%------ Encabezado -------- %
+
+\begin{center}
+    \begin{minipage}{3cm}
+        \begin{center}
+            \includegraphics[height=3.4cm]{logo_unam.png}
+        \end{center}
+    \end{minipage}\hfill
+    \begin{minipage}{10cm}
+        \begin{center}
+            \textbf{\large Universidad Nacional Autónoma de México}\\[0.1cm]
+            \textbf{Facultad de Ciencias}\\[0.1cm]
+            \textbf{Fundamentos de Bases de Datos}\\[0.2cm]
+            \textbf{Práctica 02: Sistema de Archivos vs. Bases de
+                Datos}\\[0.2cm]
+            Díaz Anavia Jabier Omar \\
+            Espejel Báez Juan Arturo \\
+            Ramírez Mendoza Joaquin Rodrigo \\
+            Sánchez Loaeza Dana Ximena \\
+            Tenorio Reyes Ihebel Luro\\
+             {\small \textbf{FECHA: }14 SEPTIEMBRE 2026}
+        \end{center}
+    \end{minipage}\hfill
+    \begin{minipage}{3cm}
+        \begin{center}
+            \includegraphics[height=3.4cm]{Logo_FC.png}
+        \end{center}
+    \end{minipage}
+\end{center}
+
+
+\rule{17cm}{0.1mm}
+
+%------ Fin de encabezado -------- %
+
+
+\section*{Análisis de Requerimientos}
+
+\begin{quote}
+\textbf{Alcance de la Práctica 02.} El análisis considera el caso de uso completo de PuellaGame, pero el prototipo con archivos CSV únicamente debe implementar la gestión de \textbf{Sucursales, Clientes y Premios}. Las demás entidades se conservan porque forman parte del contexto del sistema y serán relevantes para el diseño posterior de la base de datos.
+\end{quote}
+
+\section*{1. Enumerar Requerimientos Candidatos}
+
+\begin{enumerate}
+    \item Gestionar \textbf{Sucursales}.
+    \item Gestionar \textbf{Clientes}.
+    \item Gestionar \textbf{Tarjetas de Acceso}.
+    \item Gestionar \textbf{Máquinas}.
+    \item Gestionar \textbf{Juegos}.
+    \item Registrar \textbf{Partidas / Registros de Juego}.
+    \item Registrar \textbf{Recargas}.
+    \item Gestionar \textbf{Premios}.
+    \item Gestionar el \textbf{Inventario de Premios por Sucursal}.
+    \item Registrar \textbf{Canjes de Premios}.
+    \item Gestionar \textbf{Personal / Empleados}.
+    \item Registrar \textbf{Mantenimientos}.
+    \item Determinar la categoría \textbf{VIP} de los clientes a partir de sus visitas.
+\end{enumerate}
+
+\vspace{1em}
+\noindent\rule{\textwidth}{0.4pt}
+\vspace{1em}
+
+\section*{2. Comprensión del Contexto del Sistema}
+
+\begin{enumerate}
+    \item Una \textbf{Tarjeta de Acceso} pertenece a un único \textbf{Cliente}, y cada cliente puede tener como máximo \textbf{una tarjeta activa}.
+    \item Una \textbf{Sucursal} dispone de múltiples \textbf{Máquinas}; sin embargo, cada máquina pertenece \textbf{exclusivamente a una sucursal}.
+    \item Una \textbf{Máquina} ejecuta un determinado \textbf{Juego}, pero un mismo juego puede estar instalado en varias máquinas y en distintas sucursales.
+    \item Un \textbf{Cliente} realiza \textbf{Recargas} a su tarjeta en una sucursal específica; cada recarga es procesada por un \textbf{Cajero}.
+    \item Un \textbf{Cliente} acumula \textbf{Visitas}. El uso de su tarjeta en una misma sucursal durante un día se contabiliza como una sola visita, independientemente del número de partidas realizadas ese día.
+    \item Si un \textbf{Cliente} acumula \textbf{10 o más visitas} durante un mes, adquiere la categoría \textbf{VIP} para el mes siguiente y recibe \textbf{10 \% de puntos adicionales} por partida.
+    \item Cada \textbf{Sucursal} administra su propio \textbf{Inventario de Premios}.
+    \item Un \textbf{Encargado de Premios} procesa los \textbf{Canjes}, verifica los puntos acumulados en la tarjeta y descuenta los puntos correspondientes.
+    \item Un \textbf{Técnico} ejecuta y registra \textbf{Mantenimientos} en las máquinas pertenecientes a su sucursal.
+    \item Un \textbf{Gerente} con cédula profesional administra operativamente la sucursal que tiene asignada.
+\end{enumerate}
+
+\vspace{1em}
+\noindent\rule{\textwidth}{0.4pt}
+\vspace{1em}
+
+\section*{3. Captura de Requerimientos Funcionales}
+
+\subsection*{3.1 Sucursales}
+
+El sistema debe almacenar:
+
+\begin{itemize}
+    \item \textbf{Identificador único de sucursal (idSucursal)}.
+    \item \textbf{Nombre de la sucursal}.
+    \item \textbf{Dirección completa}:
+    \begin{itemize}
+        \item Calle.
+        \item Número interior.
+        \item Número exterior.
+        \item Colonia.
+        \item Estado.
+    \end{itemize}
+    \item \textbf{Teléfono}.
+    \item \textbf{Horario de atención}.
+\end{itemize}
+
+Para el prototipo de la Práctica 02 se debe permitir \textbf{agregar, consultar por idSucursal, editar y eliminar} sucursales.
+
+\subsection*{3.2 Clientes}
+
+El sistema debe almacenar:
+
+\begin{itemize}
+    \item \textbf{Identificador único de cliente (idCliente)}.
+    \item \textbf{Nombre}.
+    \item \textbf{Apellido paterno}.
+    \item \textbf{Apellido materno}.
+    \item \textbf{Fecha de nacimiento}.
+    \item \textbf{Sexo}: masculino, femenino o no binario.
+    \item \textbf{Correos electrónicos} --- multivaluado.
+    \item \textbf{Teléfonos} --- multivaluado.
+\end{itemize}
+
+Además:
+
+\begin{itemize}
+    \item \textbf{Edad} es un atributo \textbf{derivado} de la fecha de nacimiento.
+    \item \textbf{Estatus VIP} es un atributo \textbf{derivado} del número de visitas realizadas durante el mes.
+\end{itemize}
+
+Para el prototipo de la Práctica 02 se debe permitir \textbf{agregar, consultar por idCliente, editar y eliminar} clientes.
+
+\subsection*{3.3 Tarjetas de Acceso}
+
+El sistema debe almacenar:
+
+\begin{itemize}
+    \item \textbf{Identificador único de tarjeta}.
+    \item \textbf{Saldo disponible}.
+    \item \textbf{Puntos acumulados}.
+    \item \textbf{Cliente asignado}.
+\end{itemize}
+
+\subsection*{3.4 Máquinas}
+
+El sistema debe almacenar:
+
+\begin{itemize}
+    \item \textbf{Número de serie / ID de máquina}.
+    \item \textbf{Juego asociado}.
+    \item \textbf{Sucursal a la que pertenece}.
+    \item \textbf{Estado operativo}: activo, fuera de servicio o mantenimiento.
+\end{itemize}
+
+\subsection*{3.5 Juegos}
+
+El sistema debe almacenar:
+
+\begin{itemize}
+    \item \textbf{Identificador del juego}.
+    \item \textbf{Nombre del juego}.
+    \item \textbf{Tipo de juego}: destreza, velocidad, disparos o ritmo.
+    \item \textbf{Costo por partida} --- múltiplo de 10.
+    \item \textbf{Regla de recompensa}:
+    \begin{itemize}
+        \item Destreza / Disparos: 1 punto por cada caso de éxito.
+        \item Velocidad / Ritmo: 20 puntos cuando el puntaje queda en el Top 5.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{3.6 Partida / Registro de Juego}
+
+El sistema debe registrar:
+
+\begin{itemize}
+    \item \textbf{Tarjeta del cliente}.
+    \item \textbf{Máquina / Juego utilizado}.
+    \item \textbf{Fecha y hora}.
+    \item \textbf{Puntaje obtenido}.
+    \item \textbf{Puntos ganados}, incluyendo el 10 \% adicional cuando el cliente sea VIP.
+\end{itemize}
+
+\subsection*{3.7 Recargas}
+
+El sistema debe registrar:
+
+\begin{itemize}
+    \item \textbf{Tarjeta receptora}.
+    \item \textbf{Monto a abonar} --- múltiplo de 10.
+    \item \textbf{Fecha y hora}.
+    \item \textbf{Sucursal donde se realiza}.
+    \item \textbf{Método de abono}: efectivo, tarjeta de crédito, tarjeta de débito o PayPal.
+    \item \textbf{Cajero que procesa la recarga}.
+\end{itemize}
+
+\subsection*{3.8 Premios}
+
+El sistema debe almacenar:
+
+\begin{itemize}
+    \item \textbf{Identificador único del premio (idPremio)}.
+    \item \textbf{Nombre}.
+    \item \textbf{Categoría}:
+    \begin{itemize}
+        \item Bajo: 20 a 1,000 puntos.
+        \item Medio: 1,001 a 3,999 puntos.
+        \item Grande: 4,000 puntos o más.
+    \end{itemize}
+    \item \textbf{Rango de edad}:
+    \begin{itemize}
+        \item Infantil: 3 a 12 años.
+        \item Juvenil: 13 a 17 años.
+        \item Adulto: 18 años o más.
+    \end{itemize}
+    \item \textbf{Valor comercial aproximado}.
+    \item \textbf{Puntos necesarios para canjearlo} --- mínimo 20 puntos.
+\end{itemize}
+
+Para el prototipo de la Práctica 02 se debe permitir \textbf{agregar, consultar por idPremio, editar y eliminar} premios.
+
+\subsection*{3.9 Inventario de Premios por Sucursal}
+
+El sistema debe almacenar:
+
+\begin{itemize}
+    \item \textbf{Sucursal}.
+    \item \textbf{Premio}.
+    \item \textbf{Cantidad disponible en existencia}.
+\end{itemize}
+
+\subsection*{3.10 Canje de Premios}
+
+El sistema debe registrar:
+
+\begin{itemize}
+    \item \textbf{Cliente / Tarjeta que realiza el canje}.
+    \item \textbf{Premio obtenido}.
+    \item \textbf{Sucursal de canje}.
+    \item \textbf{Fecha y hora}.
+    \item \textbf{Cantidad de artículos canjeados}.
+    \item \textbf{Puntos descontados}.
+    \item \textbf{Encargado de premios que procesa el canje}.
+\end{itemize}
+
+\subsection*{3.11 Personal / Empleados}
+
+El sistema debe almacenar:
+
+\begin{itemize}
+    \item \textbf{RFC}.
+    \item \textbf{CURP}.
+    \item \textbf{Nombre completo}.
+    \item \textbf{Fecha de nacimiento}.
+    \item \textbf{Teléfonos y correos}.
+    \item \textbf{Fecha de contratación}.
+    \item \textbf{Salario}.
+    \item \textbf{Sucursal asignada}.
+    \item \textbf{Puesto / rol específico}:
+    \begin{itemize}
+        \item Gerente: cédula profesional.
+        \item Cajero: horario de trabajo (7:00--15:00 o 15:00--23:00).
+        \item Encargado de premios: horario de trabajo (7:00--15:00 o 15:00--23:00).
+        \item Técnico: área de especialidad y certificaciones.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{3.12 Registro de Mantenimiento}
+
+El sistema debe registrar:
+
+\begin{itemize}
+    \item \textbf{Máquina intervenida}.
+    \item \textbf{Técnico responsable}.
+    \item \textbf{Fecha}.
+    \item \textbf{Tipo de mantenimiento}.
+    \item \textbf{Descripción del problema y de la solución}.
+\end{itemize}
+
+\subsection*{3.13 Gestión de Entidades Principales}
+
+\begin{itemize}
+    \item Registrar nuevos clientes y sus datos personales; asociar a cada cliente una tarjeta única de acuerdo con las reglas del negocio.
+    \item Registrar el catálogo de juegos y asociar máquinas físicas a las sucursales, asignando su estado operativo.
+    \item Registrar trabajadores con su rol (Gerente, Cajero, Encargado de Premios o Técnico), datos laborales y sucursal asignada.
+    \item Registrar sucursales y mantener actualizados sus datos.
+    \item Registrar el catálogo de premios y sus datos de canje.
+\end{itemize}
+
+\subsection*{3.14 Procesos Operativos}
+
+\begin{itemize}
+    \item Registrar abonos a las tarjetas, validar que el monto sea múltiplo de 10, actualizar el saldo y guardar la fecha, hora, sucursal, método de pago y cajero.
+    \item Registrar cuando un jugador usa una máquina, descontar el costo del juego del saldo de la tarjeta, calcular los puntos ganados según el tipo de juego y aplicar el 10 \% extra cuando el cliente sea VIP.
+    \item Evaluar al final de cada mes el historial de visitas para activar o mantener la categoría VIP durante el mes siguiente.
+    \item Procesar canjes verificando que el cliente tenga los puntos necesarios y que exista disponibilidad del premio en la sucursal; descontar puntos, actualizar inventario y registrar la transacción.
+    \item Permitir a los técnicos registrar las intervenciones realizadas a las máquinas y actualizar su estado operativo.
+\end{itemize}
+
+\subsection*{3.15 Funciones específicas del prototipo de la Práctica 02}
+
+\begin{itemize}
+    \item El prototipo debe permitir \textbf{agregar, consultar, editar y eliminar} información de \textbf{Sucursales, Clientes y Premios}.
+    \item Las consultas deben realizarse mediante la \textbf{llave/identificador} de la entidad y devolver todos sus datos.
+    \item La información debe persistir en archivos \textbf{CSV} y volver a cargarse en ejecuciones posteriores.
+    \item El usuario debe realizar las operaciones mediante al menos un \textbf{menú interactivo}.
+\end{itemize}
+
+\vspace{1em}
+\noindent\rule{\textwidth}{0.4pt}
+\vspace{1em}
+
+\section*{4. Captura de Requerimientos No Funcionales}
+
+\subsection*{A. No Funcionales Asociados a Requerimientos Funcionales}
+
+\begin{itemize}
+    \item \textbf{Cliente-Tarjeta}: relación \textbf{1 a 1}; un cliente puede tener como máximo una tarjeta activa y una tarjeta pertenece a un solo cliente.
+    \item \textbf{Sucursal-Máquina}: relación \textbf{1 a N} con participación total de la máquina; una máquina debe pertenecer obligatoriamente a una sucursal.
+    \item \textbf{Restricción de Puntos y Moneda}: los costos de juegos y los montos de recarga deben ser múltiplos exactos de 10.
+    \item \textbf{Categoría de Premios}: la categoría del premio debe ser coherente con los puntos necesarios: Bajo (20--1,000), Medio (1,001--3,999) y Grande (4,000 o más).
+    \item \textbf{Puntos mínimos de canje}: un premio debe requerir al menos 20 puntos.
+    \item \textbf{Regla de Equivalencia de Premios}: se conserva la regla indicada en el análisis original de que 20 puntos equivalen a \$10.00 MXN; la fórmula exacta para obtener el valor comercial debe confirmarse antes de automatizarla.
+    \item \textbf{Unicidad de Visita Diaria}: múltiples partidas del mismo cliente en la misma sucursal durante el mismo día cuentan como una sola visita para el cómputo de la categoría VIP.
+    \item \textbf{Acreditación de membresía VIP}: el cliente obtiene estatus VIP para el mes siguiente cuando registra un mínimo de 10 visitas dentro de un mismo mes.
+    \item \textbf{Bonificación VIP}: un cliente VIP obtiene 10 \% de puntos adicionales por partida.
+    \item \textbf{Validación de dominios}: los campos con opciones definidas deben aceptar únicamente valores permitidos, por ejemplo sexo, estado operativo o método de pago.
+    \item \textbf{Validación numérica}: en los campos definidos como cantidades numéricas solo deben aceptarse datos numéricos válidos.
+\end{itemize}
+
+\subsection*{B. No Funcionales No Asociados a Requerimientos Funcionales}
+
+\begin{itemize}
+    \item \textbf{Persistencia}: la información del prototipo debe permanecer disponible después de cerrar y volver a ejecutar la aplicación mediante los archivos CSV.
+    \item \textbf{Robustez}: el programa debe controlar entradas inválidas y errores de ejecución sin cerrarse inesperadamente siempre que sea posible.
+    \item \textbf{Manejo de excepciones}: los errores de lectura, escritura o procesamiento deben capturarse y comunicarse al usuario mediante mensajes comprensibles.
+    \item \textbf{Usabilidad}: las operaciones del prototipo deben estar disponibles mediante un menú de consola claro y consistente.
+    \item \textbf{Mantenibilidad}: las clases y métodos implementados deben estar documentados para permitir la generación de documentación del código.
+    \item \textbf{Organización de archivos}: cada entidad del prototipo debe almacenarse de forma consistente en un archivo CSV con un esquema y encabezado definidos.
+\end{itemize}
+\end{document}
